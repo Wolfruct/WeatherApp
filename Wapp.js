@@ -1,13 +1,30 @@
 import React, { Component } from 'react'; 
 import { View, Text, ImageBackground, TouchableOpacity, Image } from 'react-native';
-import Icono from "react-native-vector-icons/MaterialCommunityIcons"
+import Icono from "react-native-vector-icons/MaterialCommunityIcons";
+import axios from "axios";
+
 
 export default class Wapp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-       
         barraB:false,
+        temperatura: "23",
+        textoTemp: "parcialmente nublado",
+        imagenTemp: "",
+        viento:"22",
+        lluvia:"23",
+        amanece: "6:04",
+        textDia1: "Lunes",
+        textDia2: "Lunes",
+        textDia3: "Lunes",
+        tempDia1: "13",
+        tempDia2: "13",
+        tempDia3: "13",
+        imgDia1: "",
+        imgDia2: "",
+        imgDia3: "",
+
     }; //area de variables 
 
   }
@@ -19,9 +36,43 @@ export default class Wapp extends Component {
         }else{
             this.setState({barraB:false})
         }
+    let _this = this
 
-    }
-    //programación de los elementos
+
+
+        // Hacer una petición para un usuario con ID especifico
+        axios.get('http://api.weatherapi.com/v1/forecast.json?key=0edeba6a1cc041d382452853240102&q=Guadalajara&days=5&aqi=no&alerts=no&lang=es')
+        .then(function (response) {
+            // manejar respuesta exitosa
+            console.log(response.data.current.temp_c);
+            _this.setState({temperatura:response.data.current.temp_c})
+            _this.setState({textoTemp:response.data.current.condition.text})
+            _this.setState({imagenTemp:response.data.current.condition.icon})
+            _this.setState({viento:response.data.current.wind_kph})
+            _this.setState({lluvia:response.data.current.humidity})
+            _this.setState({amanece:response.data.forecast.forecastday[0].astro.sunrise})
+            _this.setState({textDia1:response.data.forecast.forecastday[1].date})
+            _this.setState({textDia2:response.data.forecast.forecastday[2].date})
+            _this.setState({textDia3:response.data.forecast.forecastday[3].date})
+            _this.setState({tempDia1:response.data.forecast.forecastday[1].day.avgtemp_c})
+            _this.setState({tempDia2:response.data.forecast.forecastday[2].day.avgtemp_c})
+            _this.setState({tempDia3:response.data.forecast.forecastday[3].day.avgtemp_c})
+            _this.setState({imgDia1:response.data.forecast.forecastday[1].day.condition.icon})
+            _this.setState({imgDia2:response.data.forecast.forecastday[2].day.condition.icon})
+            _this.setState({imgDia3:response.data.forecast.forecastday[3].day.condition.icon})
+            //_this.setState({imgDia2:response.data.forecast.forecastday[2].hour[0].condition.icon})
+            //_this.setState({imgDia3:response.data.forecast.forecastday[3].hour[0].condition.icon})
+        })
+        .catch(function (error) {
+            // manejar error
+            console.log(error);
+        })
+        .finally(function () {
+            // siempre sera executado
+        });
+            //programación de los elementos
+        }
+    
     return ( 
         <View>
             <ImageBackground source={require("./Imagenes/images/bg.png")} style={{width:400,height:800}} blurRadius={40}>
@@ -67,21 +118,22 @@ export default class Wapp extends Component {
                     {/*Ciudad que se escojio en el Select */}
                     <Text style={{
                         color:"white",
+                        fontSize:23,
                         marginTop:10,
                         marginLeft:80,                 
                     }}>Mexico </Text>
 
                     <Text style={{
                         color:"gray",
-                        fontSize:15,
-                        marginTop:-37,
-                        marginRight:-50,
-                        marginLeft:135
+                        fontSize:20,
+                        marginTop:-28,
+                        marginRight:-125,
+                        marginLeft:155, 
                     }}> Guadalajara,Jal </Text>
                 </View>
 
                 <View>
-                    <Image  source={require('./Imagenes/images/partlycloudy.png')} style={{width:200,
+                    <Image  source={this.state.imagenTemp===""?require('./Imagenes/images/partlycloudy.png'):{uri:"http:"+this.state.imagenTemp}} style={{width:200,
                         height:200,
                         marginTop:110,
                         marginLeft:90,}}> 
@@ -92,14 +144,15 @@ export default class Wapp extends Component {
                         fontSize:45,
                         fontWeight:800,
                         marginTop:10,
-                    }}>23°</Text>
+                    }}>{this.state.temperatura}°
+                    </Text>
                     <Text style={{
                         textAlign: 'center',
                         color:"white",
                         fontSize:25,
                         fontWeight:800,
                         marginTop:10,
-                    }}>Parcialmente Nublado</Text>
+                    }}> {this.state.textoTemp}</Text>
                 </View>
 
                 <View style={{}}>
@@ -109,14 +162,19 @@ export default class Wapp extends Component {
                         marginTop:15,
                         marginLeft:20,
                     }}>
-                        <Icono name="weather-windy" size={48} style={{color:"white",}}></Icono>
+                        <Image  source={require('./Imagenes/icons/wind.png')} style={{
+                            height:30,
+                            width:30,
+                        }}>
+                        </Image>
+                        
                         <Text style={{
                             fontSize:20,
                             fontWeight: 'bold',
                             color:"white",
-                            marginTop:-40,
-                            marginLeft:45,
-                        }}> 22Km </Text>
+                            marginTop:-30,
+                            marginLeft:40,
+                        }}> {this.state.viento}Km </Text>
                     </View>
 
                     <View style={{
@@ -125,31 +183,39 @@ export default class Wapp extends Component {
                         marginTop:-60,
                         marginLeft:140,
                     }}>
-                        <Icono name="water" size={48} style={{color:"white",}}></Icono>
+                        <Image  source={require('./Imagenes/icons/drop.png')} style={{
+                            height:30,
+                            width:30,
+                        }}>
+                        </Image>
                         <Text style={{
                             fontSize:20,
                             fontWeight: 'bold',
                             color:"white",
-                            marginTop:-40,
-                            marginLeft:45,
-                        }}> 23% </Text>
+                            marginTop:-30,
+                            marginLeft:40,
+                        }}> {this.state.lluvia}% </Text>
                     </View>
 
                     <View style={{
                         width:150,
                         height:60,
                         marginTop:-60,
-                        marginLeft:245,
+                        marginLeft:235,
                         marginRight:20,
                     }}>
-                        <Icono name="weather-sunny" size={48} style={{color:"white",}}></Icono>
+                        <Image  source={require('./Imagenes/icons/sun.png')} style={{
+                            height:30,
+                            width:30,
+                        }}>
+                        </Image>
                         <Text style={{
                             fontSize:20,
                             fontWeight: 'bold',
                             color:"white",
-                            marginTop:-40,
-                            marginLeft:45,
-                        }}> 6:05 AM </Text>
+                            marginTop:-30,
+                            marginLeft:40,
+                        }}> {this.state.amanece} </Text>
                     </View>
                     
                 </View>
@@ -159,13 +225,13 @@ export default class Wapp extends Component {
                     marginTop:0,
                     marginLeft:20,
                 }}>
-                    <Icono name="calendar-text-outline" size={35} style={{color:"white",}}></Icono>
+                    <Icono name="calendar-text-outline" size={25} style={{color:"white",}}></Icono>
                     <Text style={{
                         fontSize:20,
                         fontWeight: 'bold',
                         color:"white",
-                        marginTop:-30,
-                        marginLeft:45,
+                        marginTop:-27,
+                        marginLeft:30,
                     }}> Pronostico Diario </Text>
                 </View>
 
@@ -178,7 +244,7 @@ export default class Wapp extends Component {
                     marginLeft:20,
                     marginTop:-10,
                     }}> 
-                    <Image source={require('./Imagenes/images/heavyrain.png')} style={{width:50,
+                    <Image  source={this.state.imgDia1===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia1}} style={{width:50,
                         height:50,
                         marginTop:10,
                         marginLeft:25,}}> 
@@ -186,17 +252,17 @@ export default class Wapp extends Component {
                     <Text style={{
                         color:"white",
                         textAlign: 'center',
-                        fontSize:20,
+                        fontSize:15,
                         fontWeight:800,
                         marginTop:0,
-                    }}>Lunes</Text>
+                    }}>{this.state.textDia1}</Text>
                     <Text style={{
                         color:"white",
                         textAlign: 'center',
                         fontSize:25,
                         fontWeight:800,
                         marginTop:0,
-                    }}>13°</Text>
+                    }}>{this.state.tempDia1}°</Text>
                 </View>
 
                 <View style={{
@@ -208,7 +274,7 @@ export default class Wapp extends Component {
                     marginLeft:140,
                     marginTop:-130,
                     }}> 
-                    <Image source={require('./Imagenes/images/heavyrain.png')} style={{width:50,
+                    <Image  source={this.state.imgDia2===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia2}} style={{width:50,
                         height:50,
                         marginTop:10,
                         marginLeft:25,}}> 
@@ -216,17 +282,17 @@ export default class Wapp extends Component {
                     <Text style={{
                         color:"white",
                         textAlign: 'center',
-                        fontSize:20,
+                        fontSize:15,
                         fontWeight:800,
                         marginTop:0,
-                    }}>Martes</Text>
+                    }}>{this.state.textDia2}</Text>
                     <Text style={{
                         color:"white",
                         textAlign: 'center',
                         fontSize:25,
                         fontWeight:800,
                         marginTop:0,
-                    }}>13°</Text>
+                    }}>{this.state.tempDia2}°</Text>
                 </View>
 
                 <View style={{
@@ -238,7 +304,7 @@ export default class Wapp extends Component {
                     marginLeft:260,
                     marginTop:-130,
                     }}> 
-                    <Image source={require('./Imagenes/images/heavyrain.png')} style={{width:50,
+                    <Image  source={this.state.imgDia3===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia3}} style={{width:50,
                         height:50,
                         marginTop:10,
                         marginLeft:25,}}> 
@@ -246,17 +312,17 @@ export default class Wapp extends Component {
                     <Text style={{
                         color:"white",
                         textAlign: 'center',
-                        fontSize:20,
+                        fontSize:15,
                         fontWeight:800,
                         marginTop:0,
-                    }}>Miercoles</Text>
+                    }}>{this.state.textDia3}</Text>
                     <Text style={{
                         color:"white",
                         textAlign: 'center',
                         fontSize:25,
                         fontWeight:800,
                         marginTop:0,
-                    }}>13°</Text>
+                    }}>{this.state.tempDia3}°</Text>
                 </View>
 
             </ImageBackground>
