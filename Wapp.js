@@ -1,5 +1,5 @@
 import React, { Component } from 'react'; 
-import { View, Text, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import { View, Text, ImageBackground, TouchableOpacity, Image, ScrollView, TextInput } from 'react-native';
 import Icono from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
 
@@ -8,7 +8,7 @@ export default class Wapp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        barraB:false,
+        barraB:true,
         temperatura: "23",
         textoTemp: "parcialmente nublado",
         imagenTemp: "",
@@ -18,12 +18,19 @@ export default class Wapp extends Component {
         textDia1: "Lunes",
         textDia2: "Lunes",
         textDia3: "Lunes",
+        textDia4: "Lunes",
         tempDia1: "13",
         tempDia2: "13",
         tempDia3: "13",
+        tempDia4: "13",
         imgDia1: "",
         imgDia2: "",
         imgDia3: "",
+        imgDia4: "",
+        country: "México",
+        name: "Guadalajara",
+        region: "Jalisco",
+        ciudad: ""
 
     }; //area de variables 
 
@@ -31,17 +38,13 @@ export default class Wapp extends Component {
 
   render() {
     const busca = () =>{
-        if(!this.state.barraB){
-            this.setState({barraB:true})
-        }else{
-            this.setState({barraB:false})
-        }
+
     let _this = this
 
 
 
         // Hacer una petición para un usuario con ID especifico
-        axios.get('http://api.weatherapi.com/v1/forecast.json?key=0edeba6a1cc041d382452853240102&q=Guadalajara&days=5&aqi=no&alerts=no&lang=es')
+        axios.get('http://api.weatherapi.com/v1/forecast.json?key=0edeba6a1cc041d382452853240102&q='+this.state.ciudad+'&days=5&aqi=no&alerts=no=es')
         .then(function (response) {
             // manejar respuesta exitosa
             console.log(response.data.current.temp_c);
@@ -51,15 +54,22 @@ export default class Wapp extends Component {
             _this.setState({viento:response.data.current.wind_kph})
             _this.setState({lluvia:response.data.current.humidity})
             _this.setState({amanece:response.data.forecast.forecastday[0].astro.sunrise})
-            _this.setState({textDia1:response.data.forecast.forecastday[1].date})
-            _this.setState({textDia2:response.data.forecast.forecastday[2].date})
-            _this.setState({textDia3:response.data.forecast.forecastday[3].date})
-            _this.setState({tempDia1:response.data.forecast.forecastday[1].day.avgtemp_c})
-            _this.setState({tempDia2:response.data.forecast.forecastday[2].day.avgtemp_c})
-            _this.setState({tempDia3:response.data.forecast.forecastday[3].day.avgtemp_c})
-            _this.setState({imgDia1:response.data.forecast.forecastday[1].day.condition.icon})
-            _this.setState({imgDia2:response.data.forecast.forecastday[2].day.condition.icon})
-            _this.setState({imgDia3:response.data.forecast.forecastday[3].day.condition.icon})
+            _this.setState({textDia1:response.data.forecast.forecastday[0].date})
+            _this.setState({textDia2:response.data.forecast.forecastday[1].date})
+            _this.setState({textDia3:response.data.forecast.forecastday[2].date})
+            _this.setState({textDia4:response.data.forecast.forecastday[0].date})
+            _this.setState({tempDia1:response.data.forecast.forecastday[0].day.avgtemp_c})
+            _this.setState({tempDia2:response.data.forecast.forecastday[1].day.avgtemp_c})
+            _this.setState({tempDia3:response.data.forecast.forecastday[2].day.avgtemp_c})
+            _this.setState({tempDia4:response.data.forecast.forecastday[0].day.avgtemp_c})
+            _this.setState({imgDia1:response.data.forecast.forecastday[0].day.condition.icon})
+            _this.setState({imgDia2:response.data.forecast.forecastday[1].day.condition.icon})
+            _this.setState({imgDia3:response.data.forecast.forecastday[2].day.condition.icon})
+            _this.setState({imgDia4:response.data.forecast.forecastday[0].day.condition.icon})
+            _this.setState({country:response.data.location.country})
+            _this.setState({name:response.data.location.name})
+            _this.setState({region:response.data.location.region})
+
             //_this.setState({imgDia2:response.data.forecast.forecastday[2].hour[0].condition.icon})
             //_this.setState({imgDia3:response.data.forecast.forecastday[3].hour[0].condition.icon})
         })
@@ -90,13 +100,10 @@ export default class Wapp extends Component {
                         opacity: 0.6
 
                     }}>
-                        <Text style={{
-                            fontSize:15,
-                            color:this.state.barraB?"white":"transparent",
-                            marginLeft:5,
-                            marginTop:7,
-                        }}> Buscar Ciudad
-                        </Text>
+                        <TextInput 
+                        placeholder='Buscar ciudad'
+                        onChangeText={ciudad => this.setState({ciudad})}>
+                        </TextInput>
                     </View>
 
                     <TouchableOpacity onPress={busca}>
@@ -118,25 +125,25 @@ export default class Wapp extends Component {
                     {/*Ciudad que se escojio en el Select */}
                     <Text style={{
                         color:"white",
-                        fontSize:23,
+                        fontSize:20,
                         marginTop:10,
                         marginLeft:80,                 
-                    }}>Mexico </Text>
+                    }}>{this.state.country} </Text>
 
                     <Text style={{
                         color:"gray",
-                        fontSize:20,
-                        marginTop:-28,
+                        fontSize:15,
+                        marginTop:-23,
                         marginRight:-125,
-                        marginLeft:155, 
-                    }}> Guadalajara,Jal </Text>
+                        marginLeft:145, 
+                    }}> {this.state.name},{this.state.region} </Text>
                 </View>
 
                 <View>
-                    <Image  source={this.state.imagenTemp===""?require('./Imagenes/images/partlycloudy.png'):{uri:"http:"+this.state.imagenTemp}} style={{width:200,
-                        height:200,
+                    <Image  source={this.state.imagenTemp===""?require('./Imagenes/images/partlycloudy.png'):{uri:"http:"+this.state.imagenTemp}} style={{width:150,
+                        height:150,
                         marginTop:110,
-                        marginLeft:90,}}> 
+                        marginLeft:120,}}> 
                     </Image>
                     <Text style={{
                         textAlign: 'center',
@@ -151,7 +158,7 @@ export default class Wapp extends Component {
                         color:"white",
                         fontSize:25,
                         fontWeight:800,
-                        marginTop:10,
+                        marginTop:0,
                     }}> {this.state.textoTemp}</Text>
                 </View>
 
@@ -169,7 +176,7 @@ export default class Wapp extends Component {
                         </Image>
                         
                         <Text style={{
-                            fontSize:20,
+                            fontSize:18,
                             fontWeight: 'bold',
                             color:"white",
                             marginTop:-30,
@@ -189,7 +196,7 @@ export default class Wapp extends Component {
                         }}>
                         </Image>
                         <Text style={{
-                            fontSize:20,
+                            fontSize:18,
                             fontWeight: 'bold',
                             color:"white",
                             marginTop:-30,
@@ -210,7 +217,7 @@ export default class Wapp extends Component {
                         }}>
                         </Image>
                         <Text style={{
-                            fontSize:20,
+                            fontSize:18,
                             fontWeight: 'bold',
                             color:"white",
                             marginTop:-30,
@@ -227,104 +234,145 @@ export default class Wapp extends Component {
                 }}>
                     <Icono name="calendar-text-outline" size={25} style={{color:"white",}}></Icono>
                     <Text style={{
-                        fontSize:20,
+                        fontSize:18,
                         fontWeight: 'bold',
                         color:"white",
-                        marginTop:-27,
+                        marginTop:-25,
                         marginLeft:30,
                     }}> Pronostico Diario </Text>
                 </View>
+                <View>
+                    <ScrollView horizontal style={{
+                        borderWidth:0,borderColor:"red"
+                    }}>
+                        <View style={{
+                        width:600,
+                    }}>
+                            <View style={{
+                                borderBottomWidth:0,
+                                backgroundColor:'#385754',
+                                width:100,
+                                height:140,
+                                borderRadius:20,
+                                marginLeft:20,
+                                marginTop:0,
+                                }}> 
+                                <Image  source={this.state.imgDia1===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia1}} style={{width:50,
+                                    height:50,
+                                    marginTop:10,
+                                    marginLeft:25,}}> 
+                                </Image>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:15,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.textDia1}</Text>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:25,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.tempDia1}°</Text>
+                            </View>
 
-                <View style={{
-                    borderBottomWidth:0,
-                    backgroundColor:'#063B32',
-                    width:100,
-                    height:130,
-                    borderRadius:20,
-                    marginLeft:20,
-                    marginTop:-10,
-                    }}> 
-                    <Image  source={this.state.imgDia1===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia1}} style={{width:50,
-                        height:50,
-                        marginTop:10,
-                        marginLeft:25,}}> 
-                    </Image>
-                    <Text style={{
-                        color:"white",
-                        textAlign: 'center',
-                        fontSize:15,
-                        fontWeight:800,
-                        marginTop:0,
-                    }}>{this.state.textDia1}</Text>
-                    <Text style={{
-                        color:"white",
-                        textAlign: 'center',
-                        fontSize:25,
-                        fontWeight:800,
-                        marginTop:0,
-                    }}>{this.state.tempDia1}°</Text>
+                            <View style={{
+                                borderBottomWidth:0,
+                                backgroundColor:'#385754',
+                                width:100,
+                                height:140,
+                                borderRadius:20,
+                                marginLeft:140,
+                                marginTop:-140,
+                                }}> 
+                                <Image  source={this.state.imgDia2===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia2}} style={{width:50,
+                                    height:50,
+                                    marginTop:10,
+                                    marginLeft:25,}}> 
+                                </Image>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:15,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.textDia2}</Text>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:25,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.tempDia2}°</Text>
+                            </View>
+
+                            <View style={{
+                                borderBottomWidth:0,
+                                backgroundColor:'#385754',
+                                width:100,
+                                height:140,
+                                borderRadius:20,
+                                marginLeft:260,
+                                marginTop:-140,
+                                }}> 
+                                <Image  source={this.state.imgDia3===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia3}} style={{width:50,
+                                    height:50,
+                                    marginTop:10,
+                                    marginLeft:25,}}> 
+                                </Image>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:15,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.textDia3}
+                                </Text>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:25,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.tempDia3}°</Text>
+                            </View>
+
+                            <View style={{
+                                borderBottomWidth:0,
+                                backgroundColor:'#385754',
+                                width:100,
+                                height:140,
+                                borderRadius:20,
+                                marginLeft:385,
+                                marginTop:-140,
+                                }}> 
+                                <Image  source={this.state.imgDia4===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia4}} style={{width:50,
+                                    height:50,
+                                    marginTop:10,
+                                    marginLeft:25,}}> 
+                                </Image>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:15,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.textDia4}</Text>
+                                <Text style={{
+                                    color:"white",
+                                    textAlign: 'center',
+                                    fontSize:25,
+                                    fontWeight:800,
+                                    marginTop:0,
+                                }}>{this.state.tempDia4}°</Text>
+                            </View>
+
+                        </View>
+                    </ScrollView>
                 </View>
-
-                <View style={{
-                    borderBottomWidth:0,
-                    backgroundColor:'#063B32',
-                    width:100,
-                    height:130,
-                    borderRadius:20,
-                    marginLeft:140,
-                    marginTop:-130,
-                    }}> 
-                    <Image  source={this.state.imgDia2===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia2}} style={{width:50,
-                        height:50,
-                        marginTop:10,
-                        marginLeft:25,}}> 
-                    </Image>
-                    <Text style={{
-                        color:"white",
-                        textAlign: 'center',
-                        fontSize:15,
-                        fontWeight:800,
-                        marginTop:0,
-                    }}>{this.state.textDia2}</Text>
-                    <Text style={{
-                        color:"white",
-                        textAlign: 'center',
-                        fontSize:25,
-                        fontWeight:800,
-                        marginTop:0,
-                    }}>{this.state.tempDia2}°</Text>
-                </View>
-
-                <View style={{
-                    borderBottomWidth:0,
-                    backgroundColor:'#063B32',
-                    width:100,
-                    height:130,
-                    borderRadius:20,
-                    marginLeft:260,
-                    marginTop:-130,
-                    }}> 
-                    <Image  source={this.state.imgDia3===""?require('./Imagenes/images/heavyrain.png'):{uri:"http:"+this.state.imgDia3}} style={{width:50,
-                        height:50,
-                        marginTop:10,
-                        marginLeft:25,}}> 
-                    </Image>
-                    <Text style={{
-                        color:"white",
-                        textAlign: 'center',
-                        fontSize:15,
-                        fontWeight:800,
-                        marginTop:0,
-                    }}>{this.state.textDia3}</Text>
-                    <Text style={{
-                        color:"white",
-                        textAlign: 'center',
-                        fontSize:25,
-                        fontWeight:800,
-                        marginTop:0,
-                    }}>{this.state.tempDia3}°</Text>
-                </View>
-
+                
             </ImageBackground>
         </View>
     );
